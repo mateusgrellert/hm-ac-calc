@@ -68,6 +68,7 @@ int main(int argc, char* argv[])
   TComArithmeticComplexity::ac_time = 0.0;
 #elif EN_ARITHMETIC_COMPLEXITY_TUNING
   TComArithmeticComplexity::initTimeTables();
+  
 #endif 
   // parse configuration
   try
@@ -109,6 +110,7 @@ int main(int argc, char* argv[])
   printf("\n Total AC Time: %12.3f sec.\n", TComArithmeticComplexity::ac_time/1000000.0);
 #elif EN_ARITHMETIC_COMPLEXITY_TUNING
   TComArithmeticComplexity::printTimeTables();
+
 #endif
   // destroy application encoder class
   cTAppEncTop.destroy();

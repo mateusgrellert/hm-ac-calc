@@ -3,25 +3,28 @@
 double TComArithmeticComplexity::ac_time;
 int TComArithmeticComplexity::depth;
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-double TComArithmeticComplexity::TIME_SAD[4];
-double TComArithmeticComplexity::TIME_SATD[4];
-double TComArithmeticComplexity::TIME_SSE[4];
-double TComArithmeticComplexity::TIME_TRANSF[4];
-double TComArithmeticComplexity::TIME_HALF_INTER[4];
-double TComArithmeticComplexity::TIME_QUART_INTER[4];
+double TComArithmeticComplexity::TIME_SAD[5];
+double TComArithmeticComplexity::TIME_SATD[5];
+double TComArithmeticComplexity::TIME_SSE[5];
+double TComArithmeticComplexity::TIME_TRANSF[5];
+double TComArithmeticComplexity::TIME_HALF_INTER[5];
+double TComArithmeticComplexity::TIME_QUART_INTER[5];
 #endif
-unsigned long int TComArithmeticComplexity::COUNT_SAD[4];
-unsigned long int TComArithmeticComplexity::COUNT_SATD[4];
-unsigned long int TComArithmeticComplexity::COUNT_SSE[4];
-unsigned long int TComArithmeticComplexity::COUNT_TRANSF[4];
-unsigned long int TComArithmeticComplexity::COUNT_HALF_INTER[4];
-unsigned long int TComArithmeticComplexity::COUNT_QUART_INTER[4];
+unsigned long int TComArithmeticComplexity::COUNT_SAD[5];
+unsigned long int TComArithmeticComplexity::COUNT_SATD[5];
+unsigned long int TComArithmeticComplexity::COUNT_SSE[5];
+unsigned long int TComArithmeticComplexity::COUNT_TRANSF[5];
+unsigned long int TComArithmeticComplexity::COUNT_HALF_INTER[5];
+unsigned long int TComArithmeticComplexity::COUNT_QUART_INTER[5];
 double TComArithmeticComplexity::timeDiff;
 unsigned long long int TComArithmeticComplexity::begin;
+std::ofstream TComArithmeticComplexity::debugFile;
 
 void TComArithmeticComplexity::initTimeTables(){
-    for(int i = 0; i < 4; i++){
-        
+            
+    debugFile.open("debug_timing.csv", std::ofstream::out);
+
+    for(int i = 0; i < 5; i++){
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
 
         TIME_SAD[i] = 0;
@@ -85,6 +88,7 @@ void TComArithmeticComplexity::printTimeTables(){
     for(int i = 0; i < 4; i++)
         printf("%.5f,", TIME_QUART_INTER[i]*1000000.0/COUNT_QUART_INTER[i]);
     printf("};\n");
+    debugFile.close();
 }
 
 //inline static void TComArithmeticComplexity::addDistTime(int func_enum, unsigned int w, unsigned int h){

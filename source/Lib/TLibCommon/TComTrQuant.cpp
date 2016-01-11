@@ -850,14 +850,26 @@ Void xTrMxN(Int bitDepth, TCoeff *block, TCoeff *coeff, Int iWidth, Int iHeight,
   
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING || EN_ARITHMETIC_COMPLEXITY_TUNING
     int depth;
-    if (iWidth == 32)
+ /*   if (iWidth == 32)
         depth = 0;
     else if (iWidth == 16)
         depth = 1;
     else if (iWidth == 8)
         depth = 2;
     else
+        depth = 3;*/
+    
+       
+    if (iWidth == 32 and iHeight == 32)
+        depth = 0;
+    else if (iWidth == 16 and iHeight == 16)
+        depth = 1;
+    else if (iWidth == 8 and iHeight == 8)
+        depth = 2;
+    else if (iWidth == 4 and iHeight == 4)
         depth = 3;
+    else
+        depth = 4;
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
     TComArithmeticComplexity::ac_time += TIME_TRANSF[depth];
 #else
@@ -905,8 +917,10 @@ Void xTrMxN(Int bitDepth, TCoeff *block, TCoeff *coeff, Int iWidth, Int iHeight,
   }
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
   TComArithmeticComplexity::endTimer();
-  TComArithmeticComplexity::TIME_TRANSF[depth] += TComArithmeticComplexity::timeDiff;
-  TComArithmeticComplexity::COUNT_TRANSF[depth] ++;
+  if(not (useDST)){
+    TComArithmeticComplexity::TIME_TRANSF[depth] += TComArithmeticComplexity::timeDiff;
+    TComArithmeticComplexity::COUNT_TRANSF[depth] ++;
+  }
 #endif
   
 }
@@ -933,14 +947,26 @@ Void xITrMxN(Int bitDepth, TCoeff *coeff, TCoeff *block, Int iWidth, Int iHeight
   
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING || EN_ARITHMETIC_COMPLEXITY_TUNING
     int depth;
-    if (iWidth == 32)
+ /*   if (iWidth == 32)
         depth = 0;
     else if (iWidth == 16)
         depth = 1;
     else if (iWidth == 8)
         depth = 2;
     else
+        depth = 3;*/
+    
+       
+    if (iWidth == 32 and iHeight == 32)
+        depth = 0;
+    else if (iWidth == 16 and iHeight == 16)
+        depth = 1;
+    else if (iWidth == 8 and iHeight == 8)
+        depth = 2;
+    else if (iWidth == 4 and iHeight == 4)
         depth = 3;
+    else
+        depth = 4;
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
     TComArithmeticComplexity::ac_time += TIME_TRANSF[depth];
 #else

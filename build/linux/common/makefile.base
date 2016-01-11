@@ -67,8 +67,8 @@ endif
 DEBUG_CPPFLAGS    = -g  -D_DEBUG
 #
 # release cpp
-RELEASE_CPPFLAGS  =  -O3 -Wuninitialized
-
+#RELEASE_CPPFLAGS  =  -O3 -Wuninitialized
+RELEASE_CPPFLAGS  = -O3 -mno-sse2 -mno-sse3 -mno-sse4.1 -mno-sse4 -mno-sse4.2 -mno-aes -mno-avx -mno-mmx -mno-pclmul -mno-sse4a -mno-fma4 -mno-xop -mno-lwp -mno-3dnow -mno-popcnt -mno-abm -Wuninitialized
 
 #########################################################
 # assembler compiler flags

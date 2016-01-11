@@ -463,7 +463,8 @@ Distortion TComRdCost::getDistPart( Int bitDepth, Pel* piCur, Int iCurStride,  P
   
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
   TComArithmeticComplexity::endTimer();
-  TComArithmeticComplexity::setDistTime(eDFunc);
+  if (uiBlkWidth == uiBlkHeight and not(isChroma(compID)))
+    TComArithmeticComplexity::setDistTime(eDFunc);
 #endif
   return dist;
 }
