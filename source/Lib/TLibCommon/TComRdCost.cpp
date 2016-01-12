@@ -447,9 +447,7 @@ Distortion TComRdCost::getDistPart( Int bitDepth, Pel* piCur, Int iCurStride,  P
   cDtParam.bitDepth     = bitDepth;
 
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-  TComArithmeticComplexity::addDistTime(eDFunc);
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::initTimer();
+  TComArithmeticComplexity::addDistTime(eDFunc, uiBlkWidth, uiBlkHeight);
 #endif
       
   if (isChroma(compID))
@@ -462,9 +460,7 @@ Distortion TComRdCost::getDistPart( Int bitDepth, Pel* piCur, Int iCurStride,  P
   }
   
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-  if (uiBlkWidth == uiBlkHeight and not(isChroma(compID)))
-    TComArithmeticComplexity::setDistTime(eDFunc);
+    TComArithmeticComplexity::incDistCount(eDFunc, uiBlkWidth, uiBlkHeight);
 #endif
   return dist;
 }

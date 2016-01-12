@@ -10,9 +10,7 @@
 
 #define EN_ARITHMETIC_COMPLEXITY_MEASURING 0
 #define EN_ARITHMETIC_COMPLEXITY_TUNING 1
-#define CPU_TICKS_PER_SECOND 3400000000.0
 
-#define BETWEEN(x,a,b) ((x) >= (a) && (x) <= (b)) ? true : false
 
 #include <stdio.h>
 #include <fstream>
@@ -27,188 +25,98 @@
 //const double TIME_HALF_INTER[5] = {40.9460,9.9546,3.2599,1.4155};
 //const double TIME_QUART_INTER[5] = {91.6610,21.5360,6.3011,2.2778};
 
-// ===== IMAC =======
-//const double TIME_SAD[5] = {0.884, 0.227, 0.084, 0.051};  // IN MICROSECONDS!!!!!!
-//const double TIME_SSE[5] = {3.165, 0.708, 0.214, 0.059};
-////const double TIME_SSE[5] = {0,0,0,0};
-//const double TIME_SATD[5] = {4.350, 1.103, 0.276, 0.087};
-//const double TIME_TRANSF[5] = {11.701, 1.774, 0.353, 0.118};
-//const double TIME_HALF_INTER[5] = {38.355, 9.938, 3.536, 1.742};
-//const double TIME_QUART_INTER[5] = {80.044, 20.393, 6.731, 2.905};
-//const double TIME_HALF_INTER[5] = {38.355*INTERP_ERROR, 9.938*INTERP_ERROR, 3.536*INTERP_ERROR, 1.742*INTERP_ERROR};
-//const double TIME_QUART_INTER[5] = {80.044*INTERP_ERROR, 20.393*INTERP_ERROR, 6.731*INTERP_ERROR, 2.905*INTERP_ERROR};
-//const double TIME_HALF_INTER[5] = {0,0,0,0};
-//const double TIME_QUART_INTER[5] = {0,0,0,0};
 
 
-//
-// --MaxPartitionDepth=4
-//const double TIME_SAD[5] = {0.870669, 0.218422, 0.077836, 0.052395};
-//const double TIME_SATD[5] = {4.314265, 1.090025, 0.271185, 0.084821};
-//const double TIME_SSE[5] = {3.113369, 0.701350, 0.214770, 0.061847};
-//const double TIME_TRANSF[5] = {11.970484, 1.825177, 0.357812, 0.116208};
-//const double TIME_HALF_INTER[5] = {37.933287, 9.808228, 3.479040, 1.702531};
-//const double TIME_QUART_INTER[5] = {79.160077, 20.150851, 6.633371, 2.861608};
-// --MaxPartitionDepth=3
-//const double TIME_SAD[5] = {0.854727, 0.213420, 0.086328, 0.061444};
-//const double TIME_SATD[5] = {4.249365, 1.086499, 0.340692, 0.148969};
-//const double TIME_SSE[5] = {3.065274, 0.699989, 0.211335, 0.061782};
-//const double TIME_TRANSF[5] = {11.791864, 1.805730, 0.345461, 0.119768};
-//const double TIME_HALF_INTER[5] = {37.359632, 9.643600, 3.757362, 2.013447};
-//const double TIME_QUART_INTER[5] = {78.059694, 19.859897, 7.127589, 3.526860};
-// --MaxPartitionDepth=2
-const double TIME_SAD[5] = {0.53971, 0, 0, 0, };
-const double TIME_SATD[5] = {3.21357,0,0,0,};
-const double TIME_SSE[5] = {0.19311,0,0,0,};
-const double TIME_TRANSF[5] = {11.43051,1.61614,0.27229,0.05880,};
-const double TIME_HALF_INTER[5] = {23.59637,0,0,0,};
-const double TIME_QUART_INTER[5] = {49.86148,0,0,0,};
-// --MaxPartitionDepth=1
-//const double TIME_SAD[5] = {0.874331, 0.339831, 0.000000, 0.000000};
-//const double TIME_SATD[5] = {5.002521, 1.873949, 0.000000, 0.000000};
-//const double TIME_SSE[5] = {3.102756, 0.691150, 0.200879, 0.061595};
-//const double TIME_TRANSF[5] = {11.928403, 1.786580, 0.347350, 0.112669};
-//const double TIME_HALF_INTER[5] = {37.990816, 15.558401, 0.000000, 0.000000};
-//const double TIME_QUART_INTER[5] = {79.417381, 32.208118, 0.000000, 0.000000};
+
+// === IMAC =========
+const double TIME_SAD[5] = {1.19751, 0.31412, 0.09382, 0.05736, 0};
+const double TIME_SATD[5] = {7.21264,1.81197,0.46692,0.12916, 0};
+const double TIME_SSE[5] = {2.96286,0.66671,0.19061,0.06339, 0};
+const double TIME_TRANSF[5] = {11.41940,1.61500,0.27588,0.05912, 0};
+const double TIME_HALF_INTER[5] = {53.44381,15.16350,4.84652,1.88722, 0};
+const double TIME_QUART_INTER[5] = {112.13131,31.16828,9.46509,3.41669, 0};
 
 #endif // #if EN_ARITHMETIC_COMPLEXITY_MEASURING
 
 
 
-#if defined(__i386__)
-
-static __inline__ unsigned long long rdtsc(void)
-{
-  unsigned long long int x;
-     __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-     return x;
-}
-#elif defined(__x86_64__)
-
-
-//static __inline__ unsigned long long rdtsc(void)
-//{
-//  unsigned hi, lo;
-//  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-//  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-//}
-
-static __inline__ unsigned long long rdtsc(void)
-{
-    unsigned hi, lo;
- __asm__ __volatile__("CPUID\n\t"
-                    "RDTSC\n\t"
-                    "mov %%edx, %0\n\t"
-                    "mov %%eax, %1\n\t": "=r" (hi), "=r" (lo)::
-                    "%rax", "%rbx", "%rcx", "%rdx");
- return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-}
-
-static __inline__ unsigned long long rdtsc_end(void)
-{
-        unsigned hi, lo;
-
-   __asm__ __volatile__("RDTSCP\n\t"
-     "mov %%edx, %0\n\t"
-     "mov %%eax, %1\n\t"
-     "CPUID\n\t": "=r" (hi), "=r" (lo)::
-    "%rax", "%rbx", "%rcx", "%rdx");
-   return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-
-}
-#elif defined(__powerpc__)
-
-
-static __inline__ unsigned long long rdtsc(void)
-{
-  unsigned long long int result=0;
-  unsigned long int upper, lower,tmp;
-  __asm__ volatile(
-                "0:                  \n"
-                "\tmftbu   %0           \n"
-                "\tmftb    %1           \n"
-                "\tmftbu   %2           \n"
-                "\tcmpw    %2,%0        \n"
-                "\tbne     0b         \n"
-                : "=r"(upper),"=r"(lower),"=r"(tmp)
-                );
-  result = upper;
-  result = result<<32;
-  result = result|lower;
-
-  return(result);
-}
-
-#endif
-
 class TComArithmeticComplexity{
 
 public:
-    static double ac_time;
+    static double ac_time, factor;
     static int depth;
     static unsigned long long begin;
-    static double timeDiff;
     static std::ofstream debugFile;
     
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-    static double TIME_SAD[5], TIME_SATD[5], TIME_SSE[5], TIME_TRANSF[5], TIME_HALF_INTER[5], TIME_QUART_INTER[5];
+    static double COUNT_SAD[4], COUNT_SATD[4], COUNT_SSE[4], COUNT_TRANSF[4], COUNT_HALF_INTER[4], COUNT_QUART_INTER[4];
 #endif
-        
-    static unsigned long int COUNT_SAD[5], COUNT_SATD[5], COUNT_SSE[5], COUNT_TRANSF[5], COUNT_HALF_INTER[5], COUNT_QUART_INTER[5];
-
+    
     static bool isSAD(int func_enum);
     static bool isSSE(int func_enum);
     static bool isSATD(int func_enum);
     static void setDepth(int d);
-    static void initTimeTables();
+    static void initCountTables();
 
     
     
     
-    static void printTimeTables();
+    static void printCountTables();
     
-    static inline void addDistTime(int func_enum){
-
+    static inline void addDistTime(int func_enum,int width, int height){
+        
+#if EN_ARITHMETIC_COMPLEXITY_MEASURING
+        setDepth(width, height);
+        setAdjustFactor(width,height);
         if (func_enum < 8)
-            ac_time += TIME_SSE[depth];
+            ac_time += TIME_SSE[depth]*factor;
         else if (func_enum < 22)
-            ac_time += TIME_SAD[depth];
+            ac_time += TIME_SAD[depth]*factor;
         else if (func_enum < 43)
-            ac_time += TIME_SATD[depth];
+            ac_time += TIME_SATD[depth]*factor;
         else
-            ac_time += TIME_SAD[depth];
-
+            ac_time += TIME_SAD[depth]*factor;
+#endif
     }
         
-    static inline void setDistTime(int func_enum){
+    static inline void incDistCount(int func_enum, int width, int height){
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
+        setDepth(width, height);
+        setAdjustFactor(width,height);
+
         if (func_enum < 8){
-            TIME_SSE[depth] += timeDiff;
-            COUNT_SSE[depth] ++;
+            COUNT_SSE[depth] += factor;
         }
         else if (func_enum < 22){
-            TIME_SAD[depth] += timeDiff;
-            COUNT_SAD[depth] ++;
+            COUNT_SAD[depth] += factor;
         }        
         else if (func_enum < 43){
-            TIME_SATD[depth] += timeDiff;
-            COUNT_SATD[depth] ++;
+            COUNT_SATD[depth] += factor;
         }        
         else{
-            TIME_SAD[depth] += timeDiff;
-            COUNT_SAD[depth] ++;
+            COUNT_SAD[depth] += factor;
         }
 #endif
     }
     
-    static inline void initTimer(){
-        begin = rdtsc();
+    static inline void setDepth(int w, int h){
+        int max = (w > h) ? w : h;
+        if(max == 64)
+            depth = 0;
+        else if(max == 32)
+            depth = 1;
+        else if(max == 16)
+            depth = 2;
+        else if(max == 8)
+            depth = 3;
+        else
+            depth = -1;
     }
-    static inline void endTimer(){
-        timeDiff = (rdtsc_end() - begin)/CPU_TICKS_PER_SECOND;
+        
+    static inline void setAdjustFactor(int w, int h){
+        int max = (w > h) ? w : h;
+        factor = ((w*h)*1.0)/(max*max*1.0);
     }
-
-    
     
     
 };

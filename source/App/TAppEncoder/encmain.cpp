@@ -67,8 +67,7 @@ int main(int argc, char* argv[])
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
   TComArithmeticComplexity::ac_time = 0.0;
 #elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::initTimeTables();
-  
+  TComArithmeticComplexity::initCountTables();
 #endif 
   // parse configuration
   try
@@ -107,9 +106,9 @@ int main(int argc, char* argv[])
   dResult = (Double)(clock()-lBefore) / CLOCKS_PER_SEC;
   printf("\n Total Time: %12.3f sec.\n", dResult);
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-  printf("\n Total AC Time: %12.3f sec.\n", TComArithmeticComplexity::ac_time/1000000.0);
+  printf("\n Total AC Time: %12.3f sec.\n", TComArithmeticComplexity::ac_time/1000000);
 #elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::printTimeTables();
+  TComArithmeticComplexity::printCountTables();
 
 #endif
   // destroy application encoder class

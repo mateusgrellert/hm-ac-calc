@@ -848,34 +848,11 @@ Void xTrMxN(Int bitDepth, TCoeff *block, TCoeff *coeff, Int iWidth, Int iHeight,
 
   TCoeff tmp[ MAX_TU_SIZE * MAX_TU_SIZE ];
   
-#if EN_ARITHMETIC_COMPLEXITY_MEASURING || EN_ARITHMETIC_COMPLEXITY_TUNING
-    int depth;
- /*   if (iWidth == 32)
-        depth = 0;
-    else if (iWidth == 16)
-        depth = 1;
-    else if (iWidth == 8)
-        depth = 2;
-    else
-        depth = 3;*/
-    
-       
-    if (iWidth == 32 and iHeight == 32)
-        depth = 0;
-    else if (iWidth == 16 and iHeight == 16)
-        depth = 1;
-    else if (iWidth == 8 and iHeight == 8)
-        depth = 2;
-    else if (iWidth == 4 and iHeight == 4)
-        depth = 3;
-    else
-        depth = 4;
+
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-    TComArithmeticComplexity::ac_time += TIME_TRANSF[depth];
-#else
-    TComArithmeticComplexity::initTimer();
-#endif
-    
+    TComArithmeticComplexity::setDepth(iWidth, iHeight);
+    TComArithmeticComplexity::setAdjustFactor(iWidth,iHeight);
+    TComArithmeticComplexity::ac_time += TIME_TRANSF[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;    
 #endif
     
   switch (iWidth)
@@ -916,10 +893,11 @@ Void xTrMxN(Int bitDepth, TCoeff *block, TCoeff *coeff, Int iWidth, Int iHeight,
       assert(0); exit (1); break;
   }
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-  if(not (useDST)){
-    TComArithmeticComplexity::TIME_TRANSF[depth] += TComArithmeticComplexity::timeDiff;
-    TComArithmeticComplexity::COUNT_TRANSF[depth] ++;
+  //if(iWidth == iHeight and not (useDST)){
+  if( not (useDST)){
+    TComArithmeticComplexity::setDepth(iWidth*2, iHeight*2);
+    TComArithmeticComplexity::setAdjustFactor(iWidth,iHeight);
+    TComArithmeticComplexity::COUNT_TRANSF[TComArithmeticComplexity::depth] += TComArithmeticComplexity::factor;
   }
 #endif
   
@@ -945,34 +923,11 @@ Void xITrMxN(Int bitDepth, TCoeff *coeff, TCoeff *block, Int iWidth, Int iHeight
   assert(shift_2nd >= 0);
   
   
-#if EN_ARITHMETIC_COMPLEXITY_MEASURING || EN_ARITHMETIC_COMPLEXITY_TUNING
-    int depth;
- /*   if (iWidth == 32)
-        depth = 0;
-    else if (iWidth == 16)
-        depth = 1;
-    else if (iWidth == 8)
-        depth = 2;
-    else
-        depth = 3;*/
-    
-       
-    if (iWidth == 32 and iHeight == 32)
-        depth = 0;
-    else if (iWidth == 16 and iHeight == 16)
-        depth = 1;
-    else if (iWidth == 8 and iHeight == 8)
-        depth = 2;
-    else if (iWidth == 4 and iHeight == 4)
-        depth = 3;
-    else
-        depth = 4;
+
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-    TComArithmeticComplexity::ac_time += TIME_TRANSF[depth];
-#else
-    TComArithmeticComplexity::initTimer();
-#endif
-    
+    TComArithmeticComplexity::setDepth(iWidth, iHeight);
+    TComArithmeticComplexity::setAdjustFactor(iWidth,iHeight);
+    TComArithmeticComplexity::ac_time += TIME_TRANSF[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;  
 #endif
     
   TCoeff tmp[MAX_TU_SIZE * MAX_TU_SIZE];
@@ -1019,9 +974,11 @@ Void xITrMxN(Int bitDepth, TCoeff *coeff, TCoeff *block, Int iWidth, Int iHeight
   }
 
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-  TComArithmeticComplexity::TIME_TRANSF[depth] += TComArithmeticComplexity::timeDiff;
-  TComArithmeticComplexity::COUNT_TRANSF[depth] ++;
+  if(not useDST){
+    TComArithmeticComplexity::setDepth(iWidth*2, iHeight*2);
+    TComArithmeticComplexity::setAdjustFactor(iWidth,iHeight);
+    TComArithmeticComplexity::COUNT_TRANSF[TComArithmeticComplexity::depth] += TComArithmeticComplexity::factor;
+  }
 #endif
 }
 

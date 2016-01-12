@@ -374,17 +374,13 @@ __inline Void TEncSearch::xTZSearchHelp( TComPattern* pcPatternKey, IntTZSearchS
       m_cDistParam.iSubShift = 1;
 
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-  TComArithmeticComplexity::addDistTime(DF_SAD); // TODO use edFunc, but this should do the same
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::initTimer();
+  TComArithmeticComplexity::addDistTime(DF_SAD,  m_cDistParam.iRows, m_cDistParam.iCols); // TODO use edFunc, but this should do the same
 #endif
       
     Distortion uiTempSad = m_cDistParam.DistFunc( &m_cDistParam );
     
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-  if(m_cDistParam.iRows == m_cDistParam.iCols)
-    TComArithmeticComplexity::setDistTime(DF_SAD);
+    TComArithmeticComplexity::incDistCount(DF_SAD, m_cDistParam.iRows, m_cDistParam.iCols);
 #endif
     if((uiTempSad + uiBitCost) < rcStruct.uiBestSad)
     {
@@ -396,15 +392,12 @@ __inline Void TEncSearch::xTZSearchHelp( TComPattern* pcPatternKey, IntTZSearchS
         m_cDistParam.pCur = piRefSrch + (rcStruct.iYStride << isubShift);
        
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-    TComArithmeticComplexity::addDistTime(DF_SAD); // TODO use edFunc, but this should do the same
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::initTimer();
+    TComArithmeticComplexity::addDistTime(DF_SAD,  m_cDistParam.iRows, m_cDistParam.iCols); // TODO use edFunc, but this should do the same
+
 #endif
         uiTempSad = m_cDistParam.DistFunc( &m_cDistParam );
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-    if(m_cDistParam.iRows == m_cDistParam.iCols)
-        TComArithmeticComplexity::setDistTime(DF_SAD);
+    TComArithmeticComplexity::incDistCount(DF_SAD, m_cDistParam.iRows, m_cDistParam.iCols);
 #endif      
         uiSad += uiTempSad >>  m_cDistParam.iSubShift;
         if(((uiSad << isubShift) + uiBitCost) > rcStruct.uiBestSad)
@@ -432,16 +425,12 @@ __inline Void TEncSearch::xTZSearchHelp( TComPattern* pcPatternKey, IntTZSearchS
   {
       
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-    TComArithmeticComplexity::addDistTime(DF_SAD); // TODO use edFunc, but this should do the same
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::initTimer();
+    TComArithmeticComplexity::addDistTime(DF_SAD,  m_cDistParam.iRows, m_cDistParam.iCols); // TODO use edFunc, but this should do the same
 #endif
     uiSad = m_cDistParam.DistFunc( &m_cDistParam );
 
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-    if(m_cDistParam.iRows == m_cDistParam.iCols)
-        TComArithmeticComplexity::setDistTime(DF_SAD);
+    TComArithmeticComplexity::incDistCount(DF_SAD, m_cDistParam.iRows, m_cDistParam.iCols);
 #endif
     // motion cost
     uiSad += m_pcRdCost->getCost( iSearchX, iSearchY );
@@ -874,16 +863,12 @@ Distortion TEncSearch::xPatternRefinement( TComPattern* pcPatternKey,
     
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
     int func = m_pcEncCfg->getUseHADME() ? DF_HADS : DF_SAD;
-    TComArithmeticComplexity::addDistTime(func); // TODO use edFunc, but this should do the same
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::initTimer();
+    TComArithmeticComplexity::addDistTime(func,  m_cDistParam.iRows, m_cDistParam.iCols); // TODO use edFunc, but this should do the same
 #endif
     
     uiDist = m_cDistParam.DistFunc( &m_cDistParam );
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::endTimer();
-      if(m_cDistParam.iRows == m_cDistParam.iCols)
-        TComArithmeticComplexity::setDistTime(m_pcEncCfg->getUseHADME() ? DF_HADS : DF_SAD);
+    TComArithmeticComplexity::incDistCount(m_pcEncCfg->getUseHADME() ? DF_HADS : DF_SAD, m_cDistParam.iRows, m_cDistParam.iCols);
 #endif
     
     uiDist += m_pcRdCost->getCost( cMvTest.getHor(), cMvTest.getVer() );
@@ -2317,21 +2302,16 @@ TEncSearch::preestChromaPredMode( TComDataCU* pcCU,
         //--- get SAD ---
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
         int func = bUseHadamard ? DF_HADS : DF_SAD;
-        TComArithmeticComplexity::addDistTime(func);
-        TComArithmeticComplexity::addDistTime(func);
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-        TComArithmeticComplexity::initTimer();
+        TComArithmeticComplexity::addDistTime(func, uiWidth, uiHeight);
+        TComArithmeticComplexity::addDistTime(func,uiWidth, uiHeight);
 #endif
                 
         Distortion uiSAD  = distParamU.DistFunc(&distParamU);
         uiSAD            += distParamV.DistFunc(&distParamV);
         
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::endTimer();
-      if(uiWidth == uiHeight)
-        TComArithmeticComplexity::setDistTime(bUseHadamard ? DF_HADS : DF_SAD);
-      if(uiWidth == uiHeight)
-        TComArithmeticComplexity::setDistTime(bUseHadamard ? DF_HADS : DF_SAD);
+        TComArithmeticComplexity::incDistCount(bUseHadamard ? DF_HADS : DF_SAD, uiWidth, uiHeight);
+        TComArithmeticComplexity::incDistCount(bUseHadamard ? DF_HADS : DF_SAD, uiWidth, uiHeight);
 #endif
         //--- check ---
         if( uiSAD < uiMinSAD )
@@ -2460,17 +2440,14 @@ TEncSearch::estIntraPredQT(TComDataCU* pcCU,
         
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
         int func = bUseHadamard ? DF_HADS : DF_SAD;
-        TComArithmeticComplexity::addDistTime(func);
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-        TComArithmeticComplexity::initTimer();
+        TComArithmeticComplexity::addDistTime(func, puRect.width, puRect.height);
+
 #endif
         
         uiSad+=distParam.DistFunc(&distParam);
         
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::endTimer();
-          if(puRect.width == puRect.height)
-            TComArithmeticComplexity::setDistTime(bUseHadamard ? DF_HADS : DF_SAD);
+    TComArithmeticComplexity::incDistCount(bUseHadamard ? DF_HADS : DF_SAD, puRect.width, puRect.height);
 #endif
         UInt   iModeBits = 0;
 
@@ -3047,17 +3024,13 @@ Void TEncSearch::xGetInterPredictionError( TComDataCU* pcCU, TComYuv* pcYuvOrg, 
                             iWidth, iHeight, m_pcEncCfg->getUseHADME() && (pcCU->getCUTransquantBypass(iPartIdx) == 0) );
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
   int func = m_pcEncCfg->getUseHADME() && (pcCU->getCUTransquantBypass(iPartIdx) == 0) ? DF_HADS : DF_SAD;
-  TComArithmeticComplexity::addDistTime(func);
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::initTimer();
+  TComArithmeticComplexity::addDistTime(func,iWidth, iHeight);
 #endif
   
   ruiErr = cDistParam.DistFunc( &cDistParam );
   
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-    TComArithmeticComplexity::endTimer();
-    if(iHeight == iWidth)
-        TComArithmeticComplexity::setDistTime(m_pcEncCfg->getUseHADME() && (pcCU->getCUTransquantBypass(iPartIdx) == 0) ? DF_HADS : DF_SAD);
+    TComArithmeticComplexity::incDistCount(m_pcEncCfg->getUseHADME() && (pcCU->getCUTransquantBypass(iPartIdx) == 0) ? DF_HADS : DF_SAD, iWidth, iHeight);
 #endif
 }
 
@@ -4058,16 +4031,12 @@ Void TEncSearch::xPatternSearch( TComPattern* pcPatternKey, Pel* piRefY, Int iRe
 
       m_cDistParam.bitDepth = g_bitDepth[CHANNEL_TYPE_LUMA];
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-      TComArithmeticComplexity::addDistTime(DF_SAD);
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-      TComArithmeticComplexity::initTimer();
+      TComArithmeticComplexity::addDistTime(DF_SAD, m_cDistParam.iRows , m_cDistParam.iCols);
 #endif
       
       uiSad = m_cDistParam.DistFunc( &m_cDistParam );
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-      TComArithmeticComplexity::endTimer();
-      if(m_cDistParam.iRows == m_cDistParam.iCols)
-       TComArithmeticComplexity::setDistTime(DF_SAD);
+       TComArithmeticComplexity::incDistCount(DF_SAD, m_cDistParam.iRows , m_cDistParam.iCols);
 #endif
       // motion cost
       uiSad += m_pcRdCost->getCost( x, y );
@@ -4506,18 +4475,20 @@ Void TEncSearch::xPatternSearchFracDIF(
   //  Half-pel refinement
   
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-      TComArithmeticComplexity::ac_time += TIME_HALF_INTER[TComArithmeticComplexity::depth];
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-      TComArithmeticComplexity::initTimer();
+
+  TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+  TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+  TComArithmeticComplexity::ac_time += TIME_HALF_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
 #endif
       
   xExtDIFUpSamplingH ( &cPatternRoi, biPred );
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-    if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() ){
 
-        TComArithmeticComplexity::TIME_HALF_INTER[TComArithmeticComplexity::depth] += TComArithmeticComplexity::timeDiff;
-        TComArithmeticComplexity::COUNT_HALF_INTER[TComArithmeticComplexity::depth]++;
+   // if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
+    {
+        TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::COUNT_HALF_INTER[TComArithmeticComplexity::depth]+= TComArithmeticComplexity::factor;;
     }
 #endif
   
@@ -4528,18 +4499,19 @@ Void TEncSearch::xPatternSearchFracDIF(
   m_pcRdCost->setCostScale( 0 );
   
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
-      TComArithmeticComplexity::ac_time += TIME_QUART_INTER[TComArithmeticComplexity::depth];
-#elif EN_ARITHMETIC_COMPLEXITY_TUNING
-      TComArithmeticComplexity::initTimer();
+      TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+      TComArithmeticComplexity::ac_time += TIME_QUART_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
+
 #endif
   xExtDIFUpSamplingQ ( &cPatternRoi, rcMvHalf, biPred );
   
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
-  TComArithmeticComplexity::endTimer();
-      if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() ){
-
-        TComArithmeticComplexity::TIME_QUART_INTER[TComArithmeticComplexity::depth] += TComArithmeticComplexity::timeDiff;
-        TComArithmeticComplexity::COUNT_QUART_INTER[TComArithmeticComplexity::depth]++;
+      //if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
+      {
+        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::COUNT_QUART_INTER[TComArithmeticComplexity::depth]+=TComArithmeticComplexity::factor;
       }
 #endif
   

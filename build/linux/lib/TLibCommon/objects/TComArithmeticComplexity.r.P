@@ -1,0 +1,5 @@
+./objects/TComArithmeticComplexity.r.o: \
+  /Users/grellert/hm-ac-calc/build/linux/lib/TLibCommon/../../../../source/Lib/TLibCommon/TComArithmeticComplexity.cpp \
+  ../../../../source/Lib/TLibCommon/TComArithmeticComplexity.h
+  /Users/grellert/hm-ac-calc/build/linux/lib/TLibCommon/../../../../source/Lib/TLibCommon/TComArithmeticComplexity.cpp :
+  ../../../../source/Lib/TLibCommon/TComArithmeticComplexity.h :
