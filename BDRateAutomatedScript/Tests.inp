@@ -1,0 +1,15 @@
+#    FORMAT:  TEST_NAME PATH_TO_ REF TEST PARAMS (SEPARATED BY SPACES)
+AMP=0  ../bin/TAppEncoderStatic_ac_tune --AMP=0
+#FME=0 ../bin/TAppEncoderStatic_ac_tune --FME=0
+#FME=1 ../bin/TAppEncoderStatic_ac_tune --FME=1
+#HAD=0 ../bin/TAppEncoderStatic_ac_tune --HadamarME=0
+#CUD=1 ../bin/TAppEncoderStatic_ac_tune --MaxPartitionDepth=1
+#CUD=2 ../bin/TAppEncoderStatic_ac_tune --MaxPartitionDepth=2
+#CUD=3 ../bin/TAppEncoderStatic_ac_tune --MaxPartitionDepth=3
+#REF=2  ../bin/TAppEncoderStatic_ac_tune --refs=2
+#REF=1  ../bin/TAppEncoderStatic_ac_tune --refs=1
+#SR=16 ../bin/TAppEncoderStatic_ac_tune --SearchRange=16
+#SR=4 ../bin/TAppEncoderStatic_ac_tune --SearchRange=4
+#SR=0 ../bin/TAppEncoderStatic_ac_tune --SearchRange=0
+#TU=1 ../bin/TAppEncoderStatic_ac_tune --SearchRange=0 --QuadtreeTUMaxDepthInter=1 --QuadtreeTUMaxDepthIntra=1
+#TU=2 ../bin/TAppEncoderStatic_ac_tune --SearchRange=0 --QuadtreeTUMaxDepthInter=2 --QuadtreeTUMaxDepthIntra=2

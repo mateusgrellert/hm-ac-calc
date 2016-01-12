@@ -191,6 +191,8 @@ protected:
   //====== Tool list ========
   Bool      m_bUseASR;
   Bool      m_bUseHADME;
+  Int      m_iFME;
+  Int      m_iNumRefs;
   Bool      m_useRDOQ;
   Bool      m_useRDOQTS;
   UInt      m_rdPenalty;
@@ -511,6 +513,8 @@ public:
   //==== Tool list ========
   Void      setUseASR                       ( Bool  b )     { m_bUseASR     = b; }
   Void      setUseHADME                     ( Bool  b )     { m_bUseHADME   = b; }
+  Void      setFME                          ( Int  i )     { m_iFME   = i; }
+  Void      setNumRefs                      ( Int  i )     { m_iNumRefs   = i; }
   Void      setUseRDOQ                      ( Bool  b )     { m_useRDOQ    = b; }
   Void      setUseRDOQTS                    ( Bool  b )     { m_useRDOQTS  = b; }
   Void      setRDpenalty                 ( UInt  b )     { m_rdPenalty  = b; }
@@ -529,6 +533,8 @@ public:
   Void      setDeltaQpRD                    ( UInt  u )     {m_uiDeltaQpRD  = u; }
   Bool      getUseASR                       ()      { return m_bUseASR;     }
   Bool      getUseHADME                     ()      { return m_bUseHADME;   }
+  Int       getFME                          ()      { return m_iFME;   }
+  Int       getNumRefs                      ()      { return m_iNumRefs;   }
   Bool      getUseRDOQ                      ()      { return m_useRDOQ;    }
   Bool      getUseRDOQTS                    ()      { return m_useRDOQTS;  }
   Int       getRDpenalty                    ()      { return m_rdPenalty;  }

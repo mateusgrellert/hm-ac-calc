@@ -40,12 +40,12 @@ void TComArithmeticComplexity::printCountTables(){
     printf("\nNCALLS \n\tSAD\tSATD\tSSE\tTransf\tHalf\tQuarter\n");
     for(int i = 0, j = 64; i < 4; i++, j >>= 1){
         printf("%dx%d\t",j,j);
-        printf("%f\t", COUNT_SAD[i]);
-        printf("%f\t", COUNT_SATD[i]);
-        printf("%f\t", COUNT_SSE[i]);
-        printf("%f\t", COUNT_TRANSF[i]);
-        printf("%f\t", COUNT_HALF_INTER[i]);
-        printf("%f\t\n", COUNT_QUART_INTER[i]);
+        printf("%.2f\t", COUNT_SAD[i]);
+        printf("%.2f\t", COUNT_SATD[i]);
+        printf("%.2f\t", COUNT_SSE[i]);
+        printf("%.2f\t", COUNT_TRANSF[i]);
+        printf("%.2f\t", COUNT_HALF_INTER[i]);
+        printf("%.2f\t\n", COUNT_QUART_INTER[i]);
 
     }
     printf("\n");

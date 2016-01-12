@@ -762,6 +762,8 @@ Bool TAppEncCfg::parseCfg( Int argc, Char* argv[] )
   ("BipredSearchRange",                               m_bipredSearchRange,                                  4, "Motion search range for bipred refinement")
   ("HadamardME",                                      m_bUseHADME,                                       true, "Hadamard ME for fractional-pel")
   ("ASR",                                             m_bUseASR,                                        false, "Adaptive motion search range")
+  ("FME",                                             m_iFME,                                        2, "FME Mode: 0 - Disabled, 1- Half Only, 2- Half/Quarter")
+  ("refs",                                            m_iNumRefs,                                    4, "Reference Frame Count")
 
   // Mode decision parameters
   ("LambdaModifier0,-LM0",                            m_adLambdaModifier[ 0 ],                  ( Double )1.0, "Lambda modifier for temporal layer 0")
@@ -2335,6 +2337,8 @@ Void TAppEncCfg::xPrintParameter()
   printf("TOOL CFG: ");
   printf("IBD:%d ", ((g_bitDepth[CHANNEL_TYPE_LUMA] > m_MSBExtendedBitDepth[CHANNEL_TYPE_LUMA]) || (g_bitDepth[CHANNEL_TYPE_CHROMA] > m_MSBExtendedBitDepth[CHANNEL_TYPE_CHROMA])));
   printf("HAD:%d ", m_bUseHADME           );
+  printf("FME:%d ", m_iFME           );
+  printf("NUM REFS:%d ", m_iNumRefs           );
   printf("RDQ:%d ", m_useRDOQ            );
   printf("RDQTS:%d ", m_useRDOQTS        );
   printf("RDpenalty:%d ", m_rdPenalty  );

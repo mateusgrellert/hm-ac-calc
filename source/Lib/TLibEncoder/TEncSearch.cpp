@@ -3207,7 +3207,8 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv* 
     UInt         uiBits[3];
     UInt         uiBitsTemp;
     Distortion   bestBiPDist = std::numeric_limits<Distortion>::max();
-
+    int numRefs;
+    
     Distortion   uiCostTempL0[MAX_NUM_REF];
     for (Int iNumRef=0; iNumRef < MAX_NUM_REF; iNumRef++)
     {
@@ -3240,14 +3241,16 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv* 
     for ( Int iRefList = 0; iRefList < iNumPredDir; iRefList++ )
     {
       RefPicList  eRefPicList = ( iRefList ? REF_PIC_LIST_1 : REF_PIC_LIST_0 );
+      numRefs = std::min(pcCU->getSlice()->getNumRefIdx(eRefPicList), m_pcEncCfg->getNumRefs());
+    //  for ( Int iRefIdxTemp = 0; iRefIdxTemp < pcCU->getSlice()->getNumRefIdx(eRefPicList); iRefIdxTemp++ )     
+      for ( Int iRefIdxTemp = 0; iRefIdxTemp < numRefs ; iRefIdxTemp++ )
 
-      for ( Int iRefIdxTemp = 0; iRefIdxTemp < pcCU->getSlice()->getNumRefIdx(eRefPicList); iRefIdxTemp++ )
       {
         uiBitsTemp = uiMbBits[iRefList];
-        if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
+        if ( numRefs > 1 )
         {
           uiBitsTemp += iRefIdxTemp+1;
-          if ( iRefIdxTemp == pcCU->getSlice()->getNumRefIdx(eRefPicList)-1 ) uiBitsTemp--;
+          if ( iRefIdxTemp == numRefs-1 ) uiBitsTemp--;
         }
         xEstimateMvPredAMVP( pcCU, pcOrgYuv, iPartIdx, eRefPicList, iRefIdxTemp, cMvPred[iRefList][iRefIdxTemp], false, &biPDistTemp);
         aaiMvpIdx[iRefList][iRefIdxTemp] = pcCU->getMVPIdx(eRefPicList, uiPartAddr);
@@ -3318,6 +3321,8 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv* 
         }
       }
     }
+        
+    numRefs = std::min(pcCU->getSlice()->getNumRefIdx(REF_PIC_LIST_1), m_pcEncCfg->getNumRefs());
 
     //  Bi-directional prediction
     if ( (pcCU->getSlice()->isInterB()) && (pcCU->isBipredRestriction(iPartIdx) == false) )
@@ -3348,10 +3353,10 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv* 
         uiMotBits[0] = uiBits[0] - uiMbBits[0];
         uiMotBits[1] = uiMbBits[1];
 
-        if ( pcCU->getSlice()->getNumRefIdx(REF_PIC_LIST_1) > 1 )
+        if ( numRefs > 1 )
         {
           uiMotBits[1] += bestBiPRefIdxL1+1;
-          if ( bestBiPRefIdxL1 == pcCU->getSlice()->getNumRefIdx(REF_PIC_LIST_1)-1 ) uiMotBits[1]--;
+          if ( bestBiPRefIdxL1 == numRefs-1 ) uiMotBits[1]--;
         }
 
         uiMotBits[1] += m_auiMVPIdxCost[aaiMvpIdxBi[1][bestBiPRefIdxL1]][AMVP_MAX_NUM_CANDS];
@@ -3415,14 +3420,19 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv* 
 
         iRefStart = 0;
         iRefEnd   = pcCU->getSlice()->getNumRefIdx(eRefPicList)-1;
-
+        numRefs = std::min(pcCU->getSlice()->getNumRefIdx(eRefPicList), m_pcEncCfg->getNumRefs());
+        iRefEnd = numRefs-1;
+        
         for ( Int iRefIdxTemp = iRefStart; iRefIdxTemp <= iRefEnd; iRefIdxTemp++ )
         {
           uiBitsTemp = uiMbBits[2] + uiMotBits[1-iRefList];
-          if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
+ //       if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
+          if ( numRefs > 1 )
           {
             uiBitsTemp += iRefIdxTemp+1;
-            if ( iRefIdxTemp == pcCU->getSlice()->getNumRefIdx(eRefPicList)-1 ) uiBitsTemp--;
+
+            //if ( iRefIdxTemp == pcCU->getSlice()->getNumRefIdx(eRefPicList)-1 ) uiBitsTemp--;
+            if ( iRefIdxTemp == numRefs-1 ) uiBitsTemp--;
           }
           uiBitsTemp += m_auiMVPIdxCost[aaiMvpIdxBi[iRefList][iRefIdxTemp]][AMVP_MAX_NUM_CANDS];
           // call ME
@@ -3959,8 +3969,11 @@ Void TEncSearch::xMotionEstimation( TComDataCU* pcCU, TComYuv* pcYuvOrg, Int iPa
 
   m_pcRdCost->setCostScale( 0 );
   rcMv <<= 2;
-  rcMv += (cMvHalf <<= 1);
-  rcMv +=  cMvQter;
+  int useFME = m_pcEncCfg->getFME();
+  if(useFME > 0)
+    rcMv += (cMvHalf <<= 1);
+  if(useFME > 1)
+    rcMv +=  cMvQter;
 
   UInt uiMvBits = m_pcRdCost->getBits( rcMv.getHor(), rcMv.getVer() );
 
@@ -4466,6 +4479,7 @@ Void TEncSearch::xPatternSearchFracDIF(
 {
   //  Reference pattern initialization (integer scale)
   TComPattern cPatternRoi;
+  int useFME = m_pcEncCfg->getFME();
   Int         iOffset    = pcMvInt->getHor() + pcMvInt->getVer() * iRefStride;
   cPatternRoi.initPattern(piRefY + iOffset,
                           pcPatternKey->getROIYWidth(),
@@ -4473,54 +4487,56 @@ Void TEncSearch::xPatternSearchFracDIF(
                           iRefStride );
 
   //  Half-pel refinement
-  
+  if(useFME > 0){
 #if EN_ARITHMETIC_COMPLEXITY_MEASURING
 
-  TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-  TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-  TComArithmeticComplexity::ac_time += TIME_HALF_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
+    TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+    TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+    TComArithmeticComplexity::ac_time += TIME_HALF_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
 #endif
-      
-  xExtDIFUpSamplingH ( &cPatternRoi, biPred );
+
+    xExtDIFUpSamplingH ( &cPatternRoi, biPred );
 #if EN_ARITHMETIC_COMPLEXITY_TUNING
 
-   // if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
-    {
-        TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-        TComArithmeticComplexity::COUNT_HALF_INTER[TComArithmeticComplexity::depth]+= TComArithmeticComplexity::factor;;
-    }
-#endif
-  
-  rcMvHalf = *pcMvInt;   rcMvHalf <<= 1;    // for mv-cost
-  TComMv baseRefMv(0, 0);
-  ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 2, rcMvHalf, !bIsLosslessCoded );
-
-  m_pcRdCost->setCostScale( 0 );
-  
-#if EN_ARITHMETIC_COMPLEXITY_MEASURING
-      TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-      TComArithmeticComplexity::ac_time += TIME_QUART_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
-
-#endif
-  xExtDIFUpSamplingQ ( &cPatternRoi, rcMvHalf, biPred );
-  
-#if EN_ARITHMETIC_COMPLEXITY_TUNING
-      //if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
+     // if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
       {
-        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-        TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
-        TComArithmeticComplexity::COUNT_QUART_INTER[TComArithmeticComplexity::depth]+=TComArithmeticComplexity::factor;
+          TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+          TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+          TComArithmeticComplexity::COUNT_HALF_INTER[TComArithmeticComplexity::depth]+= TComArithmeticComplexity::factor;;
       }
 #endif
-  
-  baseRefMv = rcMvHalf;
-  baseRefMv <<= 1;
 
-  rcMvQter = *pcMvInt;   rcMvQter <<= 1;    // for mv-cost
-  rcMvQter += rcMvHalf;  rcMvQter <<= 1;
-  ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 1, rcMvQter, !bIsLosslessCoded );
+    rcMvHalf = *pcMvInt;   rcMvHalf <<= 1;    // for mv-cost
+    TComMv baseRefMv(0, 0);
+    ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 2, rcMvHalf, !bIsLosslessCoded );
+    if(useFME > 1){
+        m_pcRdCost->setCostScale( 0 );
+
+#if EN_ARITHMETIC_COMPLEXITY_MEASURING
+        TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+        TComArithmeticComplexity::ac_time += TIME_QUART_INTER[TComArithmeticComplexity::depth]*TComArithmeticComplexity::factor;
+
+#endif
+        xExtDIFUpSamplingQ ( &cPatternRoi, rcMvHalf, biPred );
+
+#if EN_ARITHMETIC_COMPLEXITY_TUNING
+        //if(pcPatternKey->getROIYWidth() ==  pcPatternKey->getROIYHeight() )
+        {
+          TComArithmeticComplexity::setAdjustFactor(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+          TComArithmeticComplexity::setDepth(pcPatternKey->getROIYWidth(), pcPatternKey->getROIYHeight());
+          TComArithmeticComplexity::COUNT_QUART_INTER[TComArithmeticComplexity::depth]+=TComArithmeticComplexity::factor;
+        }
+#endif
+
+        baseRefMv = rcMvHalf;
+        baseRefMv <<= 1;
+
+        rcMvQter = *pcMvInt;   rcMvQter <<= 1;    // for mv-cost
+        rcMvQter += rcMvHalf;  rcMvQter <<= 1;
+        ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 1, rcMvQter, !bIsLosslessCoded );
+    }
+  }
 }
 
 
